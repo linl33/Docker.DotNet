@@ -65,6 +65,8 @@ namespace Docker.DotNet
             switch (uri.Scheme.ToLowerInvariant())
             {
                 case "npipe":
+                    throw new NotSupportedException();
+
                     if (Configuration.Credentials.IsTlsCredentials())
                     {
                         throw new Exception("TLS not supported over npipe");
@@ -104,15 +106,17 @@ namespace Docker.DotNet
                         Scheme = configuration.Credentials.IsTlsCredentials() ? "https" : "http"
                     };
                     uri = builder.Uri;
-                    handler = new ManagedHandler();
+//                    handler = new ManagedHandler();
                     break;
 
                 case "https":
-                    handler = new ManagedHandler();
+//                    handler = new ManagedHandler();
                     break;
 
 #if NETSTANDARD1_6
                 case "unix":
+                    throw new NotSupportedException();
+
                     var pipeString = uri.LocalPath;
                     handler = new ManagedHandler(async (string host, int port, CancellationToken cancellationToken) =>
                     {
@@ -130,7 +134,8 @@ namespace Docker.DotNet
 
             _endpointBaseUri = uri;
 
-            _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
+            //            _client = new HttpClient(Configuration.Credentials.GetHandler(handler), true);
+            _client = new HttpClient(Configuration.Credentials.GetHandler(new HttpClientHandler()), true);
             _defaultTimeout = _client.Timeout;
             _client.Timeout = s_InfiniteTimeout;
         }
